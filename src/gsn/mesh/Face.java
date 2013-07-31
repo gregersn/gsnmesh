@@ -52,6 +52,33 @@ public class Face
 		}
 	}
 
+	public boolean pointInside(Vector point)
+	{
+		if(this.size() != 3)
+		{
+			System.out.println("Only works on triangles");
+			return false;
+		}
+
+		Vector v0 = Vector.sub(getVertex(2), getVertex(0));
+		Vector v1 = Vector.sub(getVertex(1), getVertex(0));
+		Vector v2 = Vector.sub(point, getVertex(0));
+
+		float dot00 = v0.dot(v0);
+		float dot01 = v0.dot(v1);
+		float dot02 = v0.dot(v2);
+
+		float dot11 = v1.dot(v1);
+		float dot12 = v1.dot(v2);
+
+		float invDenom = 1.0f / (dot00*dot11 - dot01*dot01);
+
+		float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+		return (u >= 0) && (v >= 0) && (u + v < 1);
+
+	}
 	public ArrayList<Vector> getVertices()
 	{
 		return this.vertices;
@@ -59,5 +86,10 @@ public class Face
 	public void addVertex(Vector p)
 	{
 		this.vertices.add(p);
+	}
+
+	public Vector getVertex(int i)
+	{
+		return this.vertices.get(i);
 	}
 }

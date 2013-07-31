@@ -76,7 +76,7 @@ class DummyObject
 		for(Vector p: this.vertices)
 		{
 			float nx = (float)(p.x * Math.cos(rads) - p.y * Math.sin(rads));
-			float ny = (float)(p.x * Math.sin(rads) - p.y * Math.cos(rads));
+			float ny = (float)(p.x * Math.sin(rads) + p.y * Math.cos(rads));
 
 			p.x = nx;
 			p.y = ny;

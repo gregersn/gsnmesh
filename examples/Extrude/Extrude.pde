@@ -26,14 +26,14 @@ void setup() {
   smooth();
   
   e = new Extrusion();
-  for(int i = 0; i < 6; i++)
+  for(int i = 0; i < 7; i++)
   {
-      Shape s = Shape.circle(0.0f, 0.0f, i*50.0f, (sin(i/QUARTER_PI)+1.0f)*50.0f + 20.0f, 8);
-      s.rotate(i/77.0f);
+      Shape s = Shape.circle(0.0f, 0.0f, -200.0f + i*50.0f, (sin(i/QUARTER_PI)+1.0f)*50.0f + 20.0f, 8);
+      s.rotate(i/PI);
       e.addShape(s);
   }
 
-  mesh = e.getMesh(2, 0, 0);
+  mesh = e.getMesh(8, 1, 0);
   
 }
 

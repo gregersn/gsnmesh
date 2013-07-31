@@ -27,6 +27,7 @@
 
 package gsn.mesh;
 
+
 import java.util.ArrayList;
 
 public class Extrusion
@@ -75,7 +76,7 @@ public class Extrusion
 			curve = 1;
 		}
 
-		if(this.shapes.size() < 4) // Can't curve from three shapes, need at least 4
+		if(this.shapes.size() < 3) // Can't curve from two shapes, need at least 4
 		{
 			curve = 0;
 		}
@@ -133,6 +134,58 @@ public class Extrusion
 				}
 				// Add last shape
 				s = this.shapes.get(this.shapes.size()-1);
+				for(int pi = 0; pi < this.shapeSize; pi++)
+				{
+					out.addVertex(s.getVertex(pi));
+				}
+
+			}
+			else if(curve == 1)
+			{
+				Shape[] shapes = new Shape[4];
+
+				// Go through all shapes but last
+				for(int si = 0; si < this.shapes.size()-1; si++)
+				{
+					// Get the four shapes we consider for each vertical stage
+					if(si < 1)
+					{
+						shapes[0] = this.shapes.get(0);
+					}
+					else
+					{
+						shapes[0] = this.shapes.get(si-1);
+					}
+
+					shapes[1] = this.shapes.get(si);
+					shapes[2] = this.shapes.get(si+1);
+
+					if((si+2) >= this.shapes.size())
+					{
+						shapes[3] = this.shapes.get(si+1);
+					}
+					else
+					{
+						shapes[3] = this.shapes.get(si+2);
+					}
+
+					Vector[] points = new Vector[4];
+
+					for(int i = 0; i < div; i++)
+					{
+						for(int pi = 0; pi < this.shapeSize; pi++)
+						{
+							points[0] = shapes[0].getVertex(pi);
+							points[1] = shapes[1].getVertex(pi);
+							points[2] = shapes[2].getVertex(pi);
+							points[3] = shapes[3].getVertex(pi);
+
+							out.addVertex(Curves.catmullRomSpline(points[0], points[1], points[2], points[3], delta*i));
+						}
+					}
+				}
+				// Add last shape
+				Shape s = this.shapes.get(this.shapes.size()-1);
 				for(int pi = 0; pi < this.shapeSize; pi++)
 				{
 					out.addVertex(s.getVertex(pi));

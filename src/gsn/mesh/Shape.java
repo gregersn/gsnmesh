@@ -69,5 +69,51 @@ public class Shape extends DummyObject
 		return out;
 	}
 
+	/**
+	*	Triangulate/tesselate a shape by earclipping it
+	*
+	*/
+	public static ArrayList<Face> earClip(ArrayList<Vector> s)
+	{
+		ArrayList<Face> faces = new ArrayList<Face>();
+		ArrayList<Vector> shape = (ArrayList<Vector>)s.clone();
+
+		if(shape.size() < 3) return null;
+
+		while(shape.size() > 3)
+		{
+			for(int i = 0; i < shape.size(); i++)
+			{
+				boolean ear = true;
+				Face tri = new Face();
+				tri.addVertex(shape.get(i));
+				tri.addVertex(shape.get((i+1)%shape.size()));
+				tri.addVertex(shape.get((i+2)%shape.size()));
+
+				for(int j = 3; j < shape.size(); j++)
+				{
+					if(tri.pointInside(shape.get(j%shape.size())))
+						ear = false;
+				}
+
+				if(ear)
+				{
+					shape.remove((i+1)%shape.size());
+					faces.add(tri);
+					break;
+				}
+			}
+		}
+
+		Face tri = new Face();
+		tri.addVertex(shape.get(0));
+		tri.addVertex(shape.get(1));
+		tri.addVertex(shape.get(2));
+
+		faces.add(tri);
+
+		return faces;
+	}
+
 
 }
