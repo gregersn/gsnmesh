@@ -66,6 +66,11 @@ class DummyObject
 		}
 	}
 
+	public ArrayList<Vector> getVertices()
+	{
+		return this.vertices;
+	}
+
 	public int getVertexCount()
 	{
 		return this.vertices.size();

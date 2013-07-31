@@ -45,6 +45,14 @@ public class Mesh extends DummyObject
 		this.faceSize = 3;
 	}
 
+	public Mesh(Shape s)
+	{
+		this.vertices = (ArrayList<Vector>)s.getVertices().clone();
+		this.faces = Shape.earClip(this.vertices);
+		this.faceUniform = true;
+		this.faceSize = 3;
+	}
+
 	public ArrayList<Face> getFaces()
 	{
 		return this.faces;
@@ -53,6 +61,14 @@ public class Mesh extends DummyObject
 	public void addFace(Face f)
 	{
 		this.faces.add(f);
+	}
+
+	public void addFaces(ArrayList<Face> faces)
+	{
+		for(Face f: faces)
+		{
+			this.faces.add(f);
+		}
 	}
 
 	public void update()

@@ -50,10 +50,10 @@ public class Shape extends DummyObject
 		return out;
 	}
 
-	ArrayList<Vector> getVertices()
+	/*ArrayList<Vector> getVertices()
 	{
 		return this.vertices;
-	}
+	}*/
 
 	public static Shape circle(float x, float y, float z, float radius, int points)
 	{

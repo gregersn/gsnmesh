@@ -35,9 +35,14 @@ public class Extrusion
 	ArrayList<Shape> shapes;
 	int shapeSize;
 
+	int udivision;
+	int vdivision;
+
 	public Extrusion()
 	{
 		this.shapes = new ArrayList<Shape>();
+		this.udivision = 1;
+		this.vdivision = 1;
 	}	
 
 	public void addShape(Shape s)
@@ -214,24 +219,28 @@ public class Extrusion
 
 		if(caps != 0)
 		{
-			if((caps&0x1) > 0x1)
+			if((caps&0x1) > 0)
 			{
-				Face f = new Face();
+				//Face f = new Face();
+				Shape s = new Shape();
 				for(int pi = 0; pi < this.shapeSize; pi++)
 				{
-					f.addVertex(out.getPoint(pi));
+					s.addVertex(out.getPoint(pi));
 				}
-				out.addFace(f);
+				//out.addFace(f);
+				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 			if((caps&0x2) > 0)
 			{
-				Face f = new Face();
+				//Face f = new Face();
+				Shape s = new Shape();
 				for(int pi = 0; pi < this.shapeSize; pi++)
 				{
-					f.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shapeSize)));
+					s.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shapeSize)));
 				}
 
-				out.addFace(f);
+				//out.addFace(f);
+				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 		}
 

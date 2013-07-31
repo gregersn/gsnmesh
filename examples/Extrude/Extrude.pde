@@ -10,15 +10,15 @@ void vertex(Vector p)
 
 void showMesh(Mesh m)
 {
-	beginShape(QUADS);
 	for(Face f: m.getFaces())
 	{
+    beginShape();
 		for(Vector p: f.getVertices())
 		{
 			vertex(p);
 		}
+    endShape(CLOSE);
 	}
-	endShape();
 }
 
 void setup() {
@@ -33,7 +33,7 @@ void setup() {
       e.addShape(s);
   }
 
-  mesh = e.getMesh(8, 1, 0);
+  mesh = e.getMesh(8, 1, 3);
   
 }
 
