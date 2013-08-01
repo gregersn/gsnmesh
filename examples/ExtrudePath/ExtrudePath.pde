@@ -39,7 +39,7 @@ void setup() {
   e.setShape(s);
   e.setPath(path);
   
-  mesh = e.getMesh(1, 0, 3);
+  mesh = e.getMesh(4, 1, 3);
   
 }
 

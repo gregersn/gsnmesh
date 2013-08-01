@@ -147,7 +147,7 @@ public class Extrusion
 					v0 = this.path.getVertex(si);
 					v1 = this.path.getVertex(si+1);
 
-					Vector vd = Vector.sub(v1, v0);
+					Vector deltap = Vector.sub(v1, v0);
 
 					for(int i = 0; i < div; i++)
 					{
@@ -159,11 +159,15 @@ public class Extrusion
 							}
 							else // Interpolate
 							{
-								/*Vector p0 = s.getVertex(pi);
-								Vector p1 = ns.getVertex(pi);
-
-								Vector deltap = Vector.sub(p1, p0);
-								out.addVertex(Vector.add(p0, Vector.mult(deltap, (i*delta))));*/
+								out.addVertex(
+									Vector.add(
+										this.shape.getVertex(pi), Vector.add(
+											v0, Vector.mult(
+												deltap, (i*delta)
+												)
+											)
+										)
+									);
 							}
 						}
 					}
@@ -177,54 +181,56 @@ public class Extrusion
 			}
 			else if(curve == 1)
 			{
-				/*Shape[] shapes = new Shape[4];
+				Vector[] vectors = new Vector[4];
+				Vector v0 = this.path.getVertex(0);
 
-				// Go through all shapes but last
-				for(int si = 0; si < this.shapes.size()-1; si++)
+				// Go through all path points, but last
+				for(int si = 0; si < this.path.size()-1; si++)
 				{
 					// Get the four shapes we consider for each vertical stage
 					if(si < 1)
 					{
-						shapes[0] = this.shapes.get(0);
+						vectors[0] = Vector.sub(this.path.getVertex(0), this.path.getVertex(0));
 					}
 					else
 					{
-						shapes[0] = this.shapes.get(si-1);
+						vectors[0] = Vector.sub(this.path.getVertex(si-1), this.path.getVertex(0));
 					}
 
-					shapes[1] = this.shapes.get(si);
-					shapes[2] = this.shapes.get(si+1);
+					vectors[1] = Vector.sub(this.path.getVertex(si), this.path.getVertex(0));
+					vectors[2] = Vector.sub(this.path.getVertex(si+1), this.path.getVertex(0));
 
-					if((si+2) >= this.shapes.size())
+					if((si+2) >= this.path.size())
 					{
-						shapes[3] = this.shapes.get(si+1);
+						vectors[3] = Vector.sub(this.path.getVertex(si+1), this.path.getVertex(0));
 					}
 					else
 					{
-						shapes[3] = this.shapes.get(si+2);
+						vectors[3] = Vector.sub(this.path.getVertex(si+2), this.path.getVertex(0));
 					}
 
-					Vector[] points = new Vector[4];
 
 					for(int i = 0; i < div; i++)
 					{
-						for(int pi = 0; pi < this.shapeSize; pi++)
+						Vector deltap = Curves.catmullRomSpline(vectors[0], vectors[1], vectors[2], vectors[3], delta*i);
+	
+						for(int pi = 0; pi < this.shape.size(); pi++)
 						{
-							points[0] = shapes[0].getVertex(pi);
-							points[1] = shapes[1].getVertex(pi);
-							points[2] = shapes[2].getVertex(pi);
-							points[3] = shapes[3].getVertex(pi);
-
-							out.addVertex(Curves.catmullRomSpline(points[0], points[1], points[2], points[3], delta*i));
+							out.addVertex(
+								Vector.add(
+									this.shape.getVertex(pi), Vector.add(
+										v0, deltap										
+										)
+									)
+								);
 						}
 					}
 				}
 				// Add last shape
-				Shape s = this.shapes.get(this.shapes.size()-1);
-				for(int pi = 0; pi < this.shapeSize; pi++)
+				for(int pi = 0; pi < this.shape.size(); pi++)
 				{
-					out.addVertex(s.getVertex(pi));
-				}*/
+					out.addVertex(Vector.add(this.shape.getVertex(pi), this.path.getVertex(this.path.size()-1)));
+				}
 
 			}
 
