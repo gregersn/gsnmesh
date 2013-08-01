@@ -40,14 +40,21 @@ public class Extrusion
 	{
 		this.shape = null;
 		this.path = null;
+		// By default we just extrude 100 units in the z-axis
 		this.vector = new Vector(0.0f, 0.0f, 100.0f);
 	}	
 
+	/**
+	* Sets the shape to be extruded
+	*/
 	public void setShape(Shape s)
 	{
 		this.shape = s;
 	}
 
+	/**
+	* Set a vector to extrude by, if you don't need a complicated path
+	*/
 	public void setVector(float x, float y, float z)
 	{
 		this.setVector(new Vector(x, y, z));
@@ -56,13 +63,25 @@ public class Extrusion
 	public void setVector(Vector v)
 	{
 		this.vector = v;
+		this.path = null;
 	}
 
+	/**
+	* Set the path to extrude by
+	*/
 	public void setPath(Shape p)
 	{
 		this.path = p;
 	}
 
+	/**
+	* Generates the mesh from the extrusion
+	*
+	*	@param div Number of divisions, more than 0, along vector, or between points in path, default is 1
+	*	@param	curve Interpolate a long a curve if applicable
+	*	@param	caps Add caps to ends of extrusion 0 - no caps, 1 - cap start, 2 - cap end, 3 - cap both
+	*	@return Mesh object
+	*/
 	public Mesh getMesh(int div, int curve, int caps)
 	{
 		if(this.shape == null)
@@ -89,6 +108,8 @@ public class Extrusion
 		// Handle vertices first
 		if(this.path == null)
 		{
+			// This is for just extruding a long a vector. No need to care about curves
+			// since that won't affect a linear extrusion
 			for(Vector p: this.shape.getVertices())
 			{
 				out.addPoint(p);
@@ -109,57 +130,54 @@ public class Extrusion
 				out.addPoint(Vector.add(p, this.vector));
 			}
 		}
-		else if(div < 2) // No subdivision, keep it simple!
-		{
-
-		}
 		else // Handle subdivision and curvature here
 		{
 			System.out.println("Subdivision and curvature not implemented!");
-			/*float delta = 1.0f / (float)div; // Division delta
+			float delta = 1.0f / (float)div; // Division delta
 			System.out.println("Division, delta: " + div + ", " + delta);
 
 			if(curve == 0) // No smoothing
 			{
-				Shape s; // Current shape
-				Shape ns; // Next shape
+				Vector v0; // Current vector
+				Vector v1; // Next vector
 
-				// Loop through all shapes except for last
-				for(int si = 0; si < this.shapes.size()-1; si++)
+				// Loop through all path points, except for last(?)
+				for(int si = 0; si < this.path.size()-1; si++)
 				{
-					s = this.shapes.get(si);
-					ns = this.shapes.get(si+1);
+					v0 = this.path.getVertex(si);
+					v1 = this.path.getVertex(si+1);
+
+					Vector vd = Vector.sub(v1, v0);
 
 					for(int i = 0; i < div; i++)
 					{
-						for(int pi = 0; pi < this.shapeSize; pi++)
+						for(int pi = 0; pi < this.shape.size(); pi++)
 						{
 							if(i == 0) // This is just current shape, so add it directly
 							{
-								out.vertices.add(s.getVertex(pi));
+								out.addVertex(Vector.add(this.shape.getVertex(pi), v0));
 							}
 							else // Interpolate
 							{
-								Vector p0 = s.getVertex(pi);
+								/*Vector p0 = s.getVertex(pi);
 								Vector p1 = ns.getVertex(pi);
 
 								Vector deltap = Vector.sub(p1, p0);
-								out.addVertex(Vector.add(p0, Vector.mult(deltap, (i*delta))));
+								out.addVertex(Vector.add(p0, Vector.mult(deltap, (i*delta))));*/
 							}
 						}
 					}
 				}
-				// Add last shape
-				s = this.shapes.get(this.shapes.size()-1);
-				for(int pi = 0; pi < this.shapeSize; pi++)
+				// Add last shape			
+				for(int pi = 0; pi < this.shape.size(); pi++)
 				{
-					out.addVertex(s.getVertex(pi));
+					out.addVertex(Vector.add(this.shape.getVertex(pi), this.path.getVertex(this.path.size()-1)));
 				}
 
 			}
 			else if(curve == 1)
 			{
-				Shape[] shapes = new Shape[4];
+				/*Shape[] shapes = new Shape[4];
 
 				// Go through all shapes but last
 				for(int si = 0; si < this.shapes.size()-1; si++)
@@ -206,17 +224,22 @@ public class Extrusion
 				for(int pi = 0; pi < this.shapeSize; pi++)
 				{
 					out.addVertex(s.getVertex(pi));
-				}
+				}*/
 
-			}*/
+			}
 
 		}
 
+
 		System.out.println("Number of vertices: " + out.getVertexCount());
 
-		// Make faces!
 
-		for(int si = 0; si < div; si++)
+
+		// Make faces!
+		int pathpoints = 1;
+		if(this.path != null) pathpoints = (this.path.size()-1);
+
+		for(int si = 0; si < div*pathpoints; si++)
 		{
 			for(int pi = 0; pi < this.shape.size(); pi++)
 			{
@@ -226,36 +249,32 @@ public class Extrusion
 					out.getPoint(((pi+1)%this.shape.size()) + (si+1) * this.shape.size()),
 					out.getPoint(pi + (si+1) * this.shape.size())
 					));
+				
 			}
 		}
-		/*
 		if(caps != 0)
 		{
 			if((caps&0x1) > 0)
 			{
-				//Face f = new Face();
 				Shape s = new Shape();
-				for(int pi = 0; pi < this.shapeSize; pi++)
+				for(int pi = 0; pi < this.shape.size(); pi++)
 				{
 					s.addVertex(out.getPoint(pi));
 				}
-				//out.addFace(f);
 				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 			if((caps&0x2) > 0)
 			{
-				//Face f = new Face();
 				Shape s = new Shape();
-				for(int pi = 0; pi < this.shapeSize; pi++)
+				for(int pi = 0; pi < this.shape.size(); pi++)
 				{
-					s.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shapeSize)));
+					s.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shape.size())));
 				}
 
-				//out.addFace(f);
 				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 		}
-		*/
+		
 		out.update();
 
 
