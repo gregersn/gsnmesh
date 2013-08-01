@@ -35,6 +35,10 @@ public class Extrusion
 	Shape shape;
 	Shape path;
 	Vector vector;
+	int capType;
+
+	public static final int FLAT = 0x00;
+	public static final int EARCLIP = 0x01;
 
 	public Extrusion()
 	{
@@ -42,6 +46,7 @@ public class Extrusion
 		this.path = null;
 		// By default we just extrude 100 units in the z-axis
 		this.vector = new Vector(0.0f, 0.0f, 100.0f);
+		this.capType = FLAT;
 	}	
 
 	/**
@@ -50,6 +55,11 @@ public class Extrusion
 	public void setShape(Shape s)
 	{
 		this.shape = s;
+	}
+
+	public void setCap(int captype)
+	{
+		this.capType = captype;
 	}
 
 	/**
@@ -237,7 +247,7 @@ public class Extrusion
 		}
 
 
-		System.out.println("Number of vertices: " + out.getVertexCount());
+		//System.out.println("Number of vertices: " + out.getVertexCount());
 
 
 
@@ -260,24 +270,50 @@ public class Extrusion
 		}
 		if(caps != 0)
 		{
-			if((caps&0x1) > 0)
+			if(this.capType == EARCLIP)
 			{
-				Shape s = new Shape();
-				for(int pi = 0; pi < this.shape.size(); pi++)
+				if((caps&0x1) > 0)
 				{
-					s.addVertex(out.getPoint(pi));
+					Shape s = new Shape();
+					for(int pi = 0; pi < this.shape.size(); pi++)
+					{
+						s.addVertex(out.getPoint(pi));
+					}
+					out.addFaces(Shape.earClip(s.getVertices()));
 				}
-				out.addFaces(Shape.earClip(s.getVertices()));
-			}
-			if((caps&0x2) > 0)
-			{
-				Shape s = new Shape();
-				for(int pi = 0; pi < this.shape.size(); pi++)
+				if((caps&0x2) > 0)
 				{
-					s.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shape.size())));
+					Shape s = new Shape();
+					for(int pi = 0; pi < this.shape.size(); pi++)
+					{
+						s.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shape.size())));
+					}
+
+					out.addFaces(Shape.earClip(s.getVertices()));
+				}
+			}
+			else if(this.capType == FLAT)
+			{
+				if((caps&0x1) > 0)
+				{
+					Face f = new Face();
+					for(int pi = 0; pi < this.shape.size(); pi++)
+					{
+						f.addVertex(out.getPoint(pi));
+					}
+					out.addFace(f);
+				}
+				if((caps&0x2) > 0)
+				{
+					Face f = new Face();
+					for(int pi = 0; pi < this.shape.size(); pi++)
+					{
+						f.addVertex(out.getPoint(pi + (out.getVertexCount() - this.shape.size())));
+					}
+
+					out.addFace(f);
 				}
 
-				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 		}
 		

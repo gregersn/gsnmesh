@@ -87,4 +87,12 @@ public class Vector
 	{
 		return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
 	}
+
+	public static Vector polar2cart(float a, float r)
+	{
+		Vector out = new Vector();
+		out.x = (float)(r * Math.cos(a));
+		out.y = (float)(r * Math.sin(a));
+		return out;
+	}
 }
