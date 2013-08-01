@@ -32,9 +32,11 @@ import java.lang.Math;
 
 public class Shape extends DummyObject
 {
+	ArrayList<Segment> segments;
 	public Shape()
 	{
 		this.vertices = new ArrayList<Vector>();
+		this.segments = new ArrayList<Segment>();
 	}
 
 	/** Functions for generating shapes */
@@ -47,13 +49,68 @@ public class Shape extends DummyObject
 		out.addPoint(new Vector(w/2.0f, h/2.0f));
 		out.addPoint(new Vector(-w/2.0f, h/2.0f));
 
+		out.addSegment(out.getVertex(0), out.getVertex(1));
+		out.addSegment(out.getVertex(1), out.getVertex(2));
+		out.addSegment(out.getVertex(2), out.getVertex(3));
+		out.addSegment(out.getVertex(3), out.getVertex(0));
+
 		return out;
 	}
 
-	/*ArrayList<Vector> getVertices()
+	public Shape get()
 	{
-		return this.vertices;
-	}*/
+		Shape out = new Shape();
+		for(Vector p: this.vertices)
+		{
+			this.vertices.add(p.get());
+		}
+
+		for(Segment s: this.segments)
+		{
+			this.segments.add(s.get());
+		}
+
+		return out;
+	}
+	public void beginShape()
+	{
+		this.vertices.clear();
+		this.segments.clear();
+	}
+
+	public void addToPath(Vector a)
+	{
+		this.addVertex(a);
+
+		if(this.getVertexCount() == 1)
+		{
+			return;
+		}
+
+		this.addSegment(this.getVertex(this.getVertexCount()-2), this.getVertex(this.getVertexCount()-1));
+
+	}
+
+
+	public void endShape(boolean close)
+	{
+		this.addSegment(this.getVertex(this.getVertexCount()-1), this.getVertex(0));
+	}
+
+
+	public void addSegment(Vector a, Vector b)
+	{
+		this.addSegment(new Segment(a, b));
+	}
+	public void addSegment(Segment s)
+	{
+		this.segments.add(s);
+	}
+
+	public int size()
+	{
+		return this.getVertexCount();
+	}
 
 	public static Shape circle(float x, float y, float z, float radius, int points)
 	{
@@ -64,6 +121,11 @@ public class Shape extends DummyObject
 		for(int i = 0; i < points; i++)
 		{
 			out.addPoint(new Vector(x + radius * (float)Math.sin(i*delta), y + radius*(float)Math.cos(i*delta), z));
+		}
+
+		for(int i = 0; i < points; i++)
+		{
+			out.addSegment(out.getVertex(i), out.getVertex((i+1)%points));
 		}
 
 		return out;

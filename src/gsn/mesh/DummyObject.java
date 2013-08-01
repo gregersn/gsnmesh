@@ -76,7 +76,22 @@ class DummyObject
 		return this.vertices.size();
 	}
 
+	public void translate(Vector v)
+	{
+		for(Vector p: this.vertices)
+		{
+			p.x += v.x;
+			p.y += v.y;
+			p.z += v.z;
+		}
+	}
+
 	public void rotate(float rads)
+	{
+		this.rotateZ(rads);
+	}
+
+	public void rotateZ(float rads)
 	{
 		for(Vector p: this.vertices)
 		{

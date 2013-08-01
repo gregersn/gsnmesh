@@ -30,46 +30,47 @@ package gsn.mesh;
 
 import java.util.ArrayList;
 
-public class Extrusion
+public class Loft
 {
-	Shape shape;
-	Shape path;
-	Vector vector;
+	ArrayList<Shape> shapes;
+	int shapeSize;
 
-	public Extrusion()
+	int udivision;
+	int vdivision;
+
+	public Loft()
 	{
-		this.shape = null;
-		this.path = null;
-		this.vector = new Vector(0.0f, 0.0f, 100.0f);
+		System.out.println("Creating loft");
+		this.shapes = new ArrayList<Shape>();
+		this.udivision = 1;
+		this.vdivision = 1;
 	}	
 
-	public void setShape(Shape s)
+	public void addShape(Shape s)
 	{
-		this.shape = s;
-	}
+		if(this.shapes.size() == 0)
+		{
+			this.shapeSize = s.getVertexCount();
+		}
 
-	public void setVector(float x, float y, float z)
-	{
-		this.setVector(new Vector(x, y, z));
-	}
+		if(s.getVertexCount() != this.shapeSize)
+		{
+			System.out.println("Shape is wrong size");
+			return;
+		}
 
-	public void setVector(Vector v)
-	{
-		this.vector = v;
-	}
-
-	public void setPath(Shape p)
-	{
-		this.path = p;
+		this.shapes.add(s);
+		System.out.println("Number of shapes: " + this.shapes.size());
+		return;
 	}
 
 	public Mesh getMesh(int div, int curve, int caps)
 	{
-		if(this.shape == null)
+		if(this.shapes.size() < 2)
+		{
+			System.out.println("Can't make mesh from less than two shapes");
 			return null;
-
-		if((this.vector == null) && (this.path == null))
-			return null;
+		}
 
 		if(curve < 0)
 		{
@@ -81,42 +82,29 @@ public class Extrusion
 			curve = 1;
 		}
 
+		if(this.shapes.size() < 3) // Can't curve from two shapes, need at least 4
+		{
+			curve = 0;
+		}
+
+
 		Mesh out = new Mesh();
 
-		if(div < 1)
-			div = 1;
-
 		// Handle vertices first
-		if(this.path == null)
+
+		if(div < 2) // No subdivision, keep it simple!
 		{
-			for(Vector p: this.shape.getVertices())
+			for(Shape s: this.shapes)
 			{
-				out.addPoint(p);
-			}
-			float delta = 1.0f / (float)div;
-			for(int i = 1; i < div; i++)
-			{
-				for(Vector p: this.shape.getVertices())
+				for(Vector p: s.getVertices())
 				{
-					out.addPoint(
-						Vector.add(p, Vector.mult(this.vector, (i*delta)))
-						);
+					out.addPoint(p);
 				}
 			}
-
-			for(Vector p: this.shape.getVertices())
-			{
-				out.addPoint(Vector.add(p, this.vector));
-			}
-		}
-		else if(div < 2) // No subdivision, keep it simple!
-		{
-
 		}
 		else // Handle subdivision and curvature here
 		{
-			System.out.println("Subdivision and curvature not implemented!");
-			/*float delta = 1.0f / (float)div; // Division delta
+			float delta = 1.0f / (float)div; // Division delta
 			System.out.println("Division, delta: " + div + ", " + delta);
 
 			if(curve == 0) // No smoothing
@@ -208,7 +196,7 @@ public class Extrusion
 					out.addVertex(s.getVertex(pi));
 				}
 
-			}*/
+			}
 
 		}
 
@@ -216,19 +204,19 @@ public class Extrusion
 
 		// Make faces!
 
-		for(int si = 0; si < div; si++)
+		for(int si = 0; si < (this.shapes.size()-1)*div; si++)
 		{
-			for(int pi = 0; pi < this.shape.size(); pi++)
+			for(int pi = 0; pi < this.shapeSize; pi++)
 			{
 				out.addFace(new Face(
-					out.getPoint(pi + si*this.shape.size()),
-					out.getPoint(((pi+1)%this.shape.size()) + si * this.shape.size()),
-					out.getPoint(((pi+1)%this.shape.size()) + (si+1) * this.shape.size()),
-					out.getPoint(pi + (si+1) * this.shape.size())
+					out.getPoint(pi + si*this.shapeSize),
+					out.getPoint(((pi+1)%this.shapeSize) + si * this.shapeSize),
+					out.getPoint(((pi+1)%this.shapeSize) + (si+1) * this.shapeSize),
+					out.getPoint(pi + (si+1) * this.shapeSize)
 					));
 			}
 		}
-		/*
+
 		if(caps != 0)
 		{
 			if((caps&0x1) > 0)
@@ -255,7 +243,7 @@ public class Extrusion
 				out.addFaces(Shape.earClip(s.getVertices()));
 			}
 		}
-		*/
+
 		out.update();
 
 

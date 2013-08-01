@@ -1,7 +1,7 @@
 import gsn.mesh.*;
 
 Mesh mesh;
-Extrusion e;
+Loft loft;
 
 void vertex(Vector p)
 {
@@ -20,17 +20,19 @@ void showMesh(Mesh m)
     endShape(CLOSE);
 	}
 }
-
 void setup() {
   size(600, 600, OPENGL);
   smooth();
   
-  e = new Extrusion();
-  e.setVector(0.0f, 0.0f, 300.0f);
-  Shape s = Shape.circle(0.0f, 0.0f, -50.0f, 100.0f, 8);
-  e.setShape(s);
-  
-  mesh = e.getMesh(4, 0, 0);
+  loft = new Loft();
+  for(int i = 0; i < 10; i++)
+  {
+      Shape s = Shape.circle(0.0f, 0.0f, -200.0f + i*50.0f, (sin(i/QUARTER_PI)+1.0f)*50.0f + 20.0f, 8);
+      s.rotate(i/PI);
+      loft.addShape(s);
+  }
+
+  mesh = loft.getMesh(8, 1, 3);
   
 }
 
@@ -40,6 +42,4 @@ void draw() {
   rotateX(millis()/1000.0f);
   rotateY(millis()/1234.0f);
   showMesh(mesh);
-  //fill(255);
-  //text("Mordi!", 40, 200);
 }
