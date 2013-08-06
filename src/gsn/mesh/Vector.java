@@ -67,6 +67,7 @@ public class Vector
 	{
 		return new Vector(v1.x+v2.x, v1.y+v2.y, v1.z+v2.z);
 	}
+
 	public static Vector sub(Vector v1, Vector v2)
 	{
 		return new Vector(v1.x-v2.x, v1.y-v2.y, v1.z-v2.z);
@@ -77,16 +78,81 @@ public class Vector
 		return new Vector(v1.x*m, v1.y*m, v1.z*m);
 	}
 
+	public static Vector div(Vector v1, float d)
+	{
+		return new Vector(v1.x/d, v1.y/d, v1.z/d);
+	}
+
+	public static float mag(Vector v1)
+	{
+		return (float)(Math.sqrt(mag2(v1)));
+	}
+
+	public float mag()
+	{
+		return mag(this);
+	}
+
+	public static float mag2(Vector v1)
+	{
+		return v1.x*v1.x + v1.y*v1.y + v1.z*v1.z;
+	}
+
+	public float mag2()
+	{
+		return mag2(this);
+	}
+
+	public static Vector normalize(Vector v1)
+	{
+		return div(v1, mag(v1));
+	}
+
+	public Vector normalize()
+	{
+		return div(this, mag(this));
+	}
+
+	public static Vector prep(Vector v1)
+	{
+		return new Vector(-v1.y, v1.x);
+	}
+
+	public Vector prep()
+	{
+		return prep(this);
+	}
+
+	public static float dist(Vector v1, Vector v2)
+	{
+		return (Vector.sub(v1, v2)).mag();
+	}
+
+	/* Vector products */
+	public static float dot(Vector v1, Vector v2)
+	{
+		return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+	}
 
 	public float dot(Vector v2)
 	{
 		return dot(this, v2);
 	}
 
-	public static float dot(Vector v1, Vector v2)
+	public static Vector cross(Vector v1, Vector v2)
 	{
-		return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+		return new Vector(
+			v1.y * v2.z - v1.z * v2.y,
+			v1.z * v2.x - v1.x * v2.z,
+			v1.x * v2.y - v1.y * v2.x
+			);
 	}
+
+	public Vector cross(Vector v2)
+	{
+		return cross(this, v2);
+	}
+
 
 	public static Vector polar2cart(float a, float r)
 	{
